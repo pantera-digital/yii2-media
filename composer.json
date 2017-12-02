@@ -1,0 +1,15 @@
+{
+  "name": "pantera-digital/yii2-media",
+  "type": "yii2-extension",
+  "authors": [
+    {
+      "name": "webmayak",
+      "email": "web-mayak@mail.ru"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "pantera\\media\\": ""
+    }
+  }
+}
