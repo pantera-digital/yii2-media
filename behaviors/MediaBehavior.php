@@ -8,6 +8,6 @@ class MediaBehavior extends Behavior
 {
     public function getMainImageUrl()
     {
-        return 'http://animals.sandiegozoo.org/sites/default/files/2016-09/animals_hero_ocelot.jpg';
+        return 'http://vcontrolpro.com/wp-content/uploads/2015/05/midi-key-1000.png';
     }
 }
