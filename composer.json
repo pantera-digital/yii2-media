@@ -7,6 +7,10 @@
       "email": "web-mayak@mail.ru"
     }
   ],
+  "require": {
+    "kartik-v/yii2-widget-fileinput": "@dev",
+    "himiklab/yii2-easy-thumbnail-image-helper": "1.1.1"
+  },
   "autoload": {
     "psr-4": {
       "pantera\\media\\": ""
