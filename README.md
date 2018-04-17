@@ -18,7 +18,6 @@ $ composer require pantera-digital/yii2-media "dev-master"
 ],
 ```
 Возможные настройки модуля
-
 ```
 permissions => ['@'] //Массив ролей RBAC которым доступна админка
 mediaUrlAlias => '@web/uploads/media/' //Алиас для доступа к файлу по url
@@ -120,6 +119,50 @@ public function actions()
     'urlUpload' => ['file-upload-dosamigos', 'id' => $model->id],
     'urlDelete' => ['file-delete'],
 ]) ?>
+```
+### Настройка загрузчика от Innostudio
+
+Необходимо добавить ашкены в контролер
+```
+public function actions()
+{
+    return [
+        'file-upload-innostudio' => [
+            'class' => \pantera\media\actions\kartik\MediaUploadActionKartik::className(),
+            'model' => function () {
+                if (Yii::$app->request->get('id')) {
+                    return $this->findModel(Yii::$app->request->get('id'));
+                } else {
+                    return new Test();
+                }
+            }
+        ],
+        'file-delete-innostudio' => [
+            'class' => \pantera\media\actions\kartik\MediaDeleteActionKartik::className(),
+            'model' => function () {
+                return \pantera\media\models\Media::findOne(Yii::$app->request->post('id'));
+            }
+        ],
+    ];
+}
+```
+Во вью подключить виджет загрузки
+```
+<?= MediaUploadWidgetInnostudio::widget([
+        'model' => $model,
+        'bucket' => 'mediaMain',
+        'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
+        'urlDelete' => ['file-delete-innostudio'],
+        'pluginOptions' => [
+            'limit' => 1,
+        ],
+    ]) ?>
+    <?= MediaUploadWidgetInnostudio::widget([
+        'model' => $model,
+        'bucket' => 'mediaOther',
+        'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
+        'urlDelete' => ['file-delete-innostudio'],
+    ]) ?>
 ```
 ### Работа с медиа файлами
 Для получения нужно вызвать свойсто модели как название бакета

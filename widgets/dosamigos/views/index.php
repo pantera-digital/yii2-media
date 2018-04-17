@@ -14,9 +14,6 @@ use yii\web\View;
 /* @var $this View */
 /* @var $urlUpload array */
 /* @var $model ActiveRecord */
-/* @var $media Media */
-/* @var $options array */
-/* @var $pluginOptions array */
 /* @var $name string */
 
 echo FileUploadUI::widget([
