@@ -57,6 +57,7 @@ class MediaUploadWidgetDosamigos extends Widget
         if (is_null($this->bucket)) {
             throw new InvalidConfigException('Настройка bucket обязательна');
         }
+        MediaUploadWidgetDosamigosAssets::register($this->view);
         $this->urlUpload['bucket'] = $this->bucket;
     }
 }

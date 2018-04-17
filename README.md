@@ -25,30 +25,6 @@ mediaUrlAlias => '@web/uploads/media/' //Алиас для доступа к ф�
 mediaFileAlias => '@webroot/uploads/media/' //Алиас полного пути до файла
 ```
 Модуль установит эти алиасы
-Необходимо добавить ашкены в контролер
-```
-public function actions()
-{
-    return [
-        'file-upload' => [
-            'class' => \pantera\media\actions\MediaUploadAction::className(),
-            'model' => function () {
-                if (Yii::$app->request->get('id')) {
-                    return $this->findModel(Yii::$app->request->get('id'));
-                } else {
-                    return new Test();
-                }
-            }
-        ],
-        'file-delete' => [
-            'class' => \pantera\media\actions\MediaUploadAction::className(),
-            'model' => function () {
-                return \pantera\media\models\Media::findOne(Yii::$app->request->get('id'));
-            }
-        ],
-    ];
-}
-```
 В модель добавить поведение
 ```
 public function behaviors()
@@ -62,6 +38,31 @@ public function behaviors()
                     'multiple' => true,
                 ],
             ],
+        ],
+    ];
+}
+```
+### Настройка загрузчика от Kartik
+Необходимо добавить ашкены в контролер
+```
+public function actions()
+{
+    return [
+        'file-upload' => [
+            'class' => \pantera\media\actions\kartik\MediaUploadActionKartik::className(),
+            'model' => function () {
+                if (Yii::$app->request->get('id')) {
+                    return $this->findModel(Yii::$app->request->get('id'));
+                } else {
+                    return new Test();
+                }
+            }
+        ],
+        'file-delete' => [
+            'class' => \pantera\media\actions\kartik\MediaDeleteActionKartik::className(),
+            'model' => function () {
+                return \pantera\media\models\Media::findOne(Yii::$app->request->get('id'));
+            }
         ],
     ];
 }
@@ -84,3 +85,46 @@ public function behaviors()
     ],
 ]) ?>
 ```
+### Настройка загрузчика от 2amigos
+Виджет работает только в режиме мультизагрузки
+Необходимо добавить ашкены в контролер
+```
+public function actions()
+{
+    return [
+        'file-upload-dosamigos' => [
+            'class' => \pantera\media\actions\dosamigos\MediaUploadActionDosamigos::className(),
+            'deleteAction' => ['file-delete-dosamigos'],
+            'model' => function () {
+                if (Yii::$app->request->get('id')) {
+                    return $this->findModel(Yii::$app->request->get('id'));
+                } else {
+                    return new Test();
+                }
+            }
+        ],
+        'file-delete-dosamigos' => [
+            'class' => \pantera\media\actions\dosamigos\MediaDeleteActionDosamigos::className(),
+            'model' => function () {
+                return \pantera\media\models\Media::findOne(Yii::$app->request->get('id'));
+            }
+        ],
+    ];
+}
+```
+Во вью подключить виджет загрузки
+```
+<?= pantera\media\widgets\dosamigos\MediaUploadWidgetDosamigos::widget([
+    'model' => $model,
+    'bucket' => 'mediaOther',
+    'urlUpload' => ['file-upload-dosamigos', 'id' => $model->id],
+    'urlDelete' => ['file-delete'],
+]) ?>
+```
+### Работа с медиа файлами
+Для получения нужно вызвать свойсто модели как название бакета
+```
+<?= $model->mediaOther ?>
+<?= $model->mediaMain ?>
+```
+Если бакет мультипл то результатом будет массив иначе объект медиа

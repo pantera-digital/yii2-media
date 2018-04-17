@@ -6,11 +6,12 @@
  * Time: 1:40 PM
  */
 
-namespace pantera\media\actions;
+namespace pantera\media\actions\kartik;
 
+use pantera\media\actions\MediaAction;
 use yii\web\NotFoundHttpException;
 
-class MediaDeleteAction extends MediaAction
+class MediaDeleteActionKartik extends MediaAction
 {
     public function run()
     {
@@ -18,5 +19,8 @@ class MediaDeleteAction extends MediaAction
             throw new NotFoundHttpException();
         };
         $this->model->delete();
+        return $this->controller->asJson([
+            'status' => 'success',
+        ]);
     }
 }

@@ -25,11 +25,7 @@ echo FileUploadUI::widget([
     'load' => !$model->isNewRecord,
     'url' => $urlUpload,
     'gallery' => true,
-    'clientEvents' => [
-        'change' => 'function(e, data) {
-            setTimeout(function(){
-                $(".fileupload-buttonbar .start").click();
-            }, 100);
-        }',
+    'clientOptions' => [
+        'autoUpload' => true,
     ],
 ]);

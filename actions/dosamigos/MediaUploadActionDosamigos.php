@@ -6,16 +6,18 @@
  * Time: 1:40 PM
  */
 
-namespace pantera\media\actions;
+namespace pantera\media\actions\dosamigos;
 
 use pantera\media\models\Media;
 use Yii;
 use yii\web\UploadedFile;
 
-class MediaUploadActionDosamigos extends MediaAction
+class MediaUploadActionDosamigos extends MediaActionDosamigos
 {
     /* @var string Название файла */
     public $name = 'file';
+    /* @var array|null Ссылка для удаления */
+    public $deleteAction;
 
     public function run()
     {
@@ -25,11 +27,7 @@ class MediaUploadActionDosamigos extends MediaAction
             $media->bucket = Yii::$app->request->get('bucket');
             $result = $media->linkMedia($file, $this->model::className(), $this->model->getPrimaryKey());
             if (is_object($result)) {
-                $res = [
-                    'status' => 'success',
-                    'name' => $file->name,
-                    'mediaId' => $result->id,
-                ];
+                $res['files'][] = $this->prepareFileData($result, $this->deleteAction);
             } else {
                 $res = [
                     'status' => 'error',
@@ -41,23 +39,10 @@ class MediaUploadActionDosamigos extends MediaAction
             $files = [];
             $_files = Media::find()
                 ->where(['=', 'model_id', Yii::$app->request->get('id')])
+                ->andWhere(['=', 'bucket', Yii::$app->request->get('bucket')])
                 ->all();
             foreach ($_files as $file) {
-                $url = $file->getUrl();
-                $thumb = false;
-                $extension = substr($file->file, strrpos($file->file, '.') + 1);
-                if (in_array($extension, ['png', 'jpg', 'gif', 'jpeg'])) {
-                    $thumb = $url;
-                }
-                $item = [
-                    'name' => $file->name,
-                    'size' => $file->size,
-                    'url' => $url,
-                    'thumbnailUrl' => $thumb,
-                    'deleteUrl' => '/reserves/file/delete?id=' . $file->id,
-                    'deleteType' => 'POST',
-                ];
-                $files[] = $item;
+                $files[] = $this->prepareFileData($file, $this->deleteAction);
             }
             return $this->controller->asJson(['files' => $files]);
         }

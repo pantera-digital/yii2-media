@@ -25,6 +25,7 @@
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
         </td>
         <td>
+            <input type="hidden" name="media[]" value="{%=file.id%}" />
             {% if (file.deleteUrl) { %}
                 <button type="button" class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
                     <i class="glyphicon glyphicon-trash"></i>
@@ -40,5 +41,6 @@
         </td>
     </tr>
 {% } %}
+
 
 </script>

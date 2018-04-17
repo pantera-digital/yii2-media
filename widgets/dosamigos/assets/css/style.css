@@ -1,0 +1,8 @@
+.template-download .preview, .template-download .preview a{
+    display: inline-block;
+}
+
+.template-download .preview img{
+    max-width: 100px;
+    max-height: 100px;
+}

@@ -6,13 +6,14 @@
  * Time: 1:40 PM
  */
 
-namespace pantera\media\actions;
+namespace pantera\media\actions\kartik;
 
+use pantera\media\actions\MediaAction;
 use pantera\media\models\Media;
 use Yii;
 use yii\web\UploadedFile;
 
-class MediaUploadAction extends MediaAction
+class MediaUploadActionKartik extends MediaAction
 {
     /* @var string Название файла */
     public $name = 'file';
