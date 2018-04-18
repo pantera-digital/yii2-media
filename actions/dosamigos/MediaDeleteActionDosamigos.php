@@ -13,20 +13,22 @@ use yii\web\NotFoundHttpException;
 
 class MediaDeleteActionDosamigos extends MediaActionDosamigos
 {
+    /* @var Media */
+    public $model;
+
     public function run()
     {
         if (is_null($this->model)) {
             throw new NotFoundHttpException();
         };
         $this->model->delete();
-        $files = [];
-        $_files = Media::find()
+        $files = Media::find()
             ->where(['=', 'model_id', $this->model->model_id])
             ->andWhere(['=', 'bucket', $this->model->bucket])
             ->all();
-        foreach ($_files as $file) {
-            $files[] = $this->prepareFileData($file, [$this->controller->action->id]);
-        }
+        array_walk($files, function (&$file) {
+            $file = $this->prepareFileData($file, [$this->controller->action->id]);
+        });
         return $this->controller->asJson(['files' => $files]);
     }
 }

@@ -5,8 +5,8 @@ namespace pantera\media\models;
 use himiklab\thumbnail\EasyThumbnailImage;
 use Yii;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
+use function array_merge;
 
 /**
  * @property integer $id
@@ -23,10 +23,11 @@ class Media extends ActiveRecord
 {
     /* @var UploadedFile|null */
     public $media;
-    /* @var array|null Динамичиские правила валидации для файла добавляются через поведения родительской модели или экшена контролера */
-    private $_dynamicMediaRules;
+    /* @var array Динамичиские правила валидации для модели добавляются через акшен в контролере */
+    private $_dynamicMediaRules = [];
 
     /**
+     * Установить динамические правила валидации для модели
      * @param array|null $dynamicMediaRules
      */
     public function setDynamicFileRules($dynamicMediaRules)
@@ -118,10 +119,10 @@ class Media extends ActiveRecord
      * Сохранить файл в медиа
      * @param UploadedFile $media
      * @param string $modelName
-     * @param string $modelId
-     * @return $this|string
+     * @param int $modelId
+     * @return string|Media|null
      */
-    public function linkMedia(UploadedFile $media, $modelName, $modelId)
+    public function linkMedia(UploadedFile $media, string $modelName, int $modelId)
     {
         $this->media = $media;
         $this->model = $modelName;
@@ -130,7 +131,10 @@ class Media extends ActiveRecord
         if ($this->validate() && $this->save()) {
             return $this;
         }
-        return $this->getFirstError('file');
+        if ($this->getFirstErrors()) {
+            return current($this->getFirstErrors());
+        }
+        return null;
     }
 
     /**
@@ -167,13 +171,10 @@ class Media extends ActiveRecord
             'file' => ['file', 'string'],
             'type' => ['type', 'string', 'max' => 32],
             'created_at' => ['created_at', 'safe'],
-            'media' => ['media', 'file', 'checkExtensionByMimeType' => false, 'skipOnEmpty' => true],
+            'media' => ['media', 'file', 'skipOnEmpty' => true],
         ];
-        //Если есть специальные правила валидации смерджим их дефолтными для файла
-        if ($this->_dynamicMediaRules) {
-            $rules['media'] = ArrayHelper::merge($rules['media'], $this->_dynamicMediaRules);
-        }
-        return [];
+        $rules = array_merge($rules, $this->_dynamicMediaRules);
+        return $rules;
     }
 
     /**

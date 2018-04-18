@@ -8,27 +8,12 @@
 
 namespace pantera\media\actions\dosamigos;
 
+use pantera\media\actions\MediaAction;
 use pantera\media\models\Media;
-use yii\base\Action;
-use yii\base\InvalidConfigException;
 use yii\helpers\Url;
 
-class MediaActionDosamigos extends Action
+class MediaActionDosamigos extends MediaAction
 {
-    /* @var Media|\Closure */
-    public $model;
-
-    public function beforeRun()
-    {
-        if ($this->model instanceof \Closure) {
-            $this->model = call_user_func($this->model);
-        }
-        if (is_null($this->model)) {
-            throw new InvalidConfigException('Property {model} required');
-        }
-        return parent::beforeRun();
-    }
-
     /**
      * Подготавливает данные медия для отдачи их плагину
      * @param Media $media

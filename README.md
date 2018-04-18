@@ -148,21 +148,21 @@ public function actions()
 ```
 Во вью подключить виджет загрузки
 ```
-<?= MediaUploadWidgetInnostudio::widget([
-        'model' => $model,
-        'bucket' => 'mediaMain',
-        'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
-        'urlDelete' => ['file-delete-innostudio'],
-        'pluginOptions' => [
-            'limit' => 1,
-        ],
-    ]) ?>
-    <?= MediaUploadWidgetInnostudio::widget([
-        'model' => $model,
-        'bucket' => 'mediaOther',
-        'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
-        'urlDelete' => ['file-delete-innostudio'],
-    ]) ?>
+<?= pantera\media\widgets\innostudio\MediaUploadWidgetInnostudio::widget([
+    'model' => $model,
+    'bucket' => 'mediaMain',
+    'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
+    'urlDelete' => ['file-delete-innostudio'],
+    'pluginOptions' => [
+        'limit' => 1,
+    ],
+]) ?>
+<?= pantera\media\widgets\innostudio\MediaUploadWidgetInnostudio::widget([
+    'model' => $model,
+    'bucket' => 'mediaOther',
+    'urlUpload' => ['file-upload-innostudio', 'id' => $model->id],
+    'urlDelete' => ['file-delete-innostudio'],
+]) ?>
 ```
 ### Работа с медиа файлами
 Для получения нужно вызвать свойсто модели как название бакета
@@ -171,3 +171,21 @@ public function actions()
 <?= $model->mediaMain ?>
 ```
 Если бакет мультипл то результатом будет массив иначе объект медиа
+### Добавление собственных правил валидации
+Для этого необходимо сконфигурировать параметр rules экшена загрузки
+```
+'file-upload-innostudio' => [
+    'class' => \pantera\media\actions\kartik\MediaUploadActionKartik::className(),
+    'model' => function () {
+        if (Yii::$app->request->get('id')) {
+            return $this->findModel(Yii::$app->request->get('id'));
+        } else {
+            return new Test();
+        }
+    },
+    'rules' => [
+        'media' => ['media', 'file', 'extensions' => 'jpeg'],
+    ],
+],
+```
+Таким способом можно изменить любые дефолтные правила валидации или добавить новые

@@ -9,33 +9,17 @@
 namespace pantera\media\actions\kartik;
 
 use pantera\media\actions\MediaAction;
-use pantera\media\models\Media;
-use Yii;
+use pantera\media\actions\MediaUploadTrait;
 use yii\web\UploadedFile;
 
 class MediaUploadActionKartik extends MediaAction
 {
-    /* @var string Название файла */
-    public $name = 'file';
+    use MediaUploadTrait;
 
     public function run()
     {
         $file = UploadedFile::getInstanceByName($this->name);
-        $media = new Media();
-        $media->bucket = Yii::$app->request->get('bucket');
-        $result = $media->linkMedia($file, $this->model::className(), $this->model->getPrimaryKey());
-        if (is_object($result)) {
-            $res = [
-                'status' => 'success',
-                'name' => $file->name,
-                'mediaId' => $result->id,
-            ];
-        } else {
-            $res = [
-                'status' => 'error',
-                'message' => $result,
-            ];
-        }
+        $res = $this->upload($file);
         return $this->controller->asJson($res);
     }
 }

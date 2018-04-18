@@ -8,23 +8,23 @@
 
 namespace pantera\media\actions;
 
-use pantera\media\models\Media;
 use yii\base\Action;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveRecord;
 
 class MediaAction extends Action
 {
-    /* @var Media|\Closure */
+    /* @var ActiveRecord|\Closure */
     public $model;
 
-    public function beforeRun()
+    public function init()
     {
+        parent::init();
         if ($this->model instanceof \Closure) {
             $this->model = call_user_func($this->model);
         }
         if (is_null($this->model)) {
             throw new InvalidConfigException('Property {model} required');
         }
-        return parent::beforeRun();
     }
 }
