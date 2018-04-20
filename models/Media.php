@@ -120,10 +120,10 @@ class Media extends ActiveRecord
      * Сохранить файл в медиа
      * @param UploadedFile $media
      * @param string $modelName
-     * @param int $modelId
+     * @param int|null $modelId
      * @return string|Media|null
      */
-    public function linkMedia(UploadedFile $media, string $modelName, int $modelId)
+    public function linkMedia(UploadedFile $media, string $modelName, ?int $modelId)
     {
         $this->media = $media;
         $this->model = $modelName;

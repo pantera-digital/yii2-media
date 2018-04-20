@@ -10,11 +10,18 @@ namespace pantera\media\actions;
 
 use pantera\media\models\Media;
 use Yii;
+use yii\web\NotFoundHttpException;
 
 class MediaDownloadAction extends MediaAction
 {
+    /* @var Media */
+    public $model;
+
     public function run()
     {
-        return Yii::$app->response->sendFile($this->model->getPath(), $this->model->name);
+        if($this->model->issetMedia()){
+            return Yii::$app->response->sendFile($this->model->getPath(), $this->model->name);
+        }
+        throw new NotFoundHttpException();
     }
 }
