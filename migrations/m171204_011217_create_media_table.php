@@ -1,5 +1,6 @@
 <?php
 
+use pantera\media\Module;
 use yii\db\Migration;
 
 /**
@@ -12,7 +13,7 @@ class m171204_011217_create_media_table extends Migration
      */
     public function up()
     {
-        $this->createTable('{{media}}', [
+        $this->createTable(Module::getInstance()->tableName, [
             'id' => $this->primaryKey(),
             'file' => $this->string()->notNull(),
             'name' => $this->string()->notNull(),
@@ -23,8 +24,8 @@ class m171204_011217_create_media_table extends Migration
             'created_at' => $this->timestamp()->notNull()->defaultExpression('CURRENT_TIMESTAMP'),
         ]);
 
-        $this->createIndex('media-model', '{{media}}', 'model');
-        $this->createIndex('media-model-model_id', '{{media}}', [
+        $this->createIndex('media-model', Module::getInstance()->tableName, 'model');
+        $this->createIndex('media-model-model_id', Module::getInstance()->tableName, [
             'model',
             'model_id',
         ]);
@@ -35,6 +36,6 @@ class m171204_011217_create_media_table extends Migration
      */
     public function down()
     {
-        $this->dropTable('{{media}}');
+        $this->dropTable(Module::getInstance()->tableName);
     }
 }

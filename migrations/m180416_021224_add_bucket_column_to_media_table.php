@@ -1,5 +1,6 @@
 <?php
 
+use pantera\media\Module;
 use yii\db\Migration;
 
 /**
@@ -12,7 +13,7 @@ class m180416_021224_add_bucket_column_to_media_table extends Migration
      */
     public function up()
     {
-        $this->addColumn('{{media}}', 'bucket', $this->string()->null());
+        $this->addColumn(Module::getInstance()->tableName, 'bucket', $this->string()->null());
     }
 
     /**
@@ -20,6 +21,7 @@ class m180416_021224_add_bucket_column_to_media_table extends Migration
      */
     public function down()
     {
-        $this->dropColumn('{{media}}', 'bucket');
+        $module = Module::getInstance();
+        $this->dropColumn(Module::getInstance()->tableName, 'bucket');
     }
 }

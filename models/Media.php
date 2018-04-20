@@ -3,6 +3,7 @@
 namespace pantera\media\models;
 
 use himiklab\thumbnail\EasyThumbnailImage;
+use pantera\media\Module;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\UploadedFile;
@@ -40,7 +41,7 @@ class Media extends ActiveRecord
      */
     public static function tableName()
     {
-        return '{{media}}';
+        return Module::getInstance()->tableName;
     }
 
     /**
