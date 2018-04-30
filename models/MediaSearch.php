@@ -4,6 +4,7 @@ namespace pantera\media\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use const SORT_DESC;
 
 class MediaSearch extends Media
 {
@@ -38,6 +39,9 @@ class MediaSearch extends Media
         $query = Media::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['id' => SORT_DESC],
+            ],
         ]);
         $this->load($params);
         if (!$this->validate()) {
