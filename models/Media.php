@@ -4,10 +4,16 @@ namespace pantera\media\models;
 
 use himiklab\thumbnail\EasyThumbnailImage;
 use pantera\media\Module;
+use SplFileInfo;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;
+use function array_key_exists;
 use function array_merge;
+use function copy;
+use function file_exists;
+use function is_array;
 
 /**
  * @property integer $id
@@ -22,7 +28,7 @@ use function array_merge;
  */
 class Media extends ActiveRecord
 {
-    /* @var UploadedFile|null */
+    /* @var UploadedFile|array|null */
     public $media;
     /* @var array Динамичиские правила валидации для модели добавляются через акшен в контролере */
     private $_dynamicMediaRules = [];
@@ -146,14 +152,24 @@ class Media extends ActiveRecord
     public function beforeSave($insert)
     {
         if ($this->media) {
-            if (!$this->isNewRecord) {
-                $this->deleteFile();
+            if ($this->media instanceof UploadedFile) {
+                if (!$this->isNewRecord) {
+                    $this->deleteFile();
+                }
+                $fileName = uniqid('', true) . '.' . $this->media->extension;
+                $this->file = $fileName;
+                $this->type = $this->media->type;
+                $this->size = $this->media->size;
+                $this->media->saveAs(Yii::getAlias('@mediaFileAlias') . $fileName);
+            } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
+                $file = new SplFileInfo($this->media['file']);
+                $fileName = uniqid('', true) . '.' . $file->getExtension();
+                $this->file = $fileName;
+                $this->type = $file->getType();
+                $this->size = $file->getSize();
+                $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
+                copy($this->media['file'], $this->getPath());
             }
-            $fileName = uniqid('', true) . '.' . $this->media->extension;
-            $this->file = $fileName;
-            $this->type = $this->media->type;
-            $this->size = $this->media->size;
-            $this->media->saveAs(Yii::getAlias('@mediaFileAlias') . $fileName);
         }
         return parent::beforeSave($insert);
     }
