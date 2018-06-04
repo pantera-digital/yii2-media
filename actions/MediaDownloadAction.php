@@ -16,11 +16,15 @@ class MediaDownloadAction extends MediaAction
 {
     /* @var Media */
     public $model;
+    /* @var bool Флаг что нужно открыть файл в браузе если это возможно */
+    public $inline = false;
 
     public function run()
     {
-        if($this->model->issetMedia()){
-            return Yii::$app->response->sendFile($this->model->getPath(), $this->model->name);
+        if ($this->model->issetMedia()) {
+            return Yii::$app->response->sendFile($this->model->getPath(), $this->model->name, [
+                'inline' => $this->inline,
+            ]);
         }
         throw new NotFoundHttpException();
     }

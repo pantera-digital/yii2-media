@@ -17,14 +17,14 @@ class MediaAction extends Action
     /* @var ActiveRecord|\Closure */
     public $model;
 
-    public function init()
+    public function beforeRun()
     {
-        parent::init();
         if ($this->model instanceof \Closure) {
             $this->model = call_user_func($this->model);
         }
         if (is_null($this->model)) {
             throw new InvalidConfigException('Property {model} required');
         }
+        return parent::beforeRun();
     }
 }
