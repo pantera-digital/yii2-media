@@ -10,7 +10,7 @@ class Module extends \yii\base\Module
     /* @var array Массив ролей которым доступна админка */
     public $permissions = ['@'];
     /* @var string Название таблицы */
-    public $tableName = '{{media}}';
+    public $tableName = '{{%media}}';
     public $mediaUrlAlias = '@web/uploads/media/';
     public $mediaFileAlias = '@webroot/uploads/media/';
 

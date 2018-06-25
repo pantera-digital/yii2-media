@@ -8,12 +8,25 @@ Preferred way via composer:
 $ composer require pantera-digital/yii2-media "dev-master"
 ```
 ## Настройка
-Подключить модуль
+Подключить модуль и добавить его в bootstrap
 ```
+'bootstrap' => ['media'],
 'modules' => [
     'media' => [
         'class' => pantera\media\Module::className(),
         'permissions' => ['admin'],
+    ],
+],
+```
+#### Migration
+Нужно добавить в конфиг консоли
+```
+'controllerMap' => [
+    'migrate' => [
+        'class' => yii\console\controllers\MigrateController::className(),
+        'migrationPath' => [
+            '@pantera/media/migrations',
+        ],
     ],
 ],
 ```
