@@ -162,6 +162,12 @@ public function actions()
                 return \pantera\media\models\Media::findOne(Yii::$app->request->post('id'));
             }
         ],
+        'files-sort' => [
+            'class' => \pantera\media\actions\kartik\MediaSortActionKartik::className(),
+            'model' => function () {
+                return $this->findModel(Yii::$app->request->get('id'));
+            },
+        ],
     ];
 }
 ```
@@ -175,6 +181,7 @@ public function actions()
     'pluginOptions' => [
         'limit' => 1,
     ],
+    'urlSort' => ['files-sort', 'id' => $model->id],
 ]) ?>
 <?= pantera\media\widgets\innostudio\MediaUploadWidgetInnostudio::widget([
     'model' => $model,
