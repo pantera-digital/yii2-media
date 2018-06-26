@@ -62,12 +62,11 @@ class MediaUploadBehavior extends Behavior
         $query = Media::find()
             ->where(['=', 'model', $owner::className()])
             ->andWhere(['=', 'model_id', $owner->getPrimaryKey()])
-            ->andWhere(['=', 'bucket', $name])
-            ->orderBy(['id' => SORT_DESC]);
+            ->andWhere(['=', 'bucket', $name]);
         if (ArrayHelper::getValue($this->buckets[$name], 'multiple', false)) {
             $this->_buckets[$name] = $query->all();
         } else {
-            $this->_buckets[$name] = $query->one();
+            $this->_buckets[$name] = $query->orderBy(['id' => SORT_DESC])->one();
         }
         return $this->_buckets[$name];
     }
