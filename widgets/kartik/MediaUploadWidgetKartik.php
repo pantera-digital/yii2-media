@@ -9,6 +9,7 @@
 namespace pantera\media\widgets\kartik;
 
 
+use kartik\widgets\FileInput;
 use pantera\media\models\Media;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
@@ -41,13 +42,11 @@ class MediaUploadWidgetKartik extends Widget
     public function run()
     {
         parent::run();
-        return $this->render('index', [
-            'urlUpload' => $this->urlUpload,
-            'model' => $this->model,
+        return FileInput::widget([
+            'name' => $this->name,
             'options' => $this->options,
             'pluginOptions' => $this->pluginOptions,
             'pluginEvents' => $this->pluginEvents,
-            'name' => $this->name,
         ]);
     }
 
@@ -113,6 +112,17 @@ JS;
             $preview = $this->initPluginOptionsPreview($this->model->{$this->bucket});
         }
         $this->pluginOptions = ArrayHelper::merge($this->pluginOptions, $preview);
+        $defaultPluginOptions = [
+            'uploadUrl' => Url::to($this->urlUpload),
+            'maxFileSize' => 2800,
+            'overwriteInitial' => false,
+            'initialPreviewAsData' => true,
+            'otherActionButtons' => '<input type="hidden" name="media[]" value="mediaId" class="media-id" />',
+            'fileActionSettings' => [
+                'showZoom' => false,
+            ],
+        ];
+        $this->pluginOptions = ArrayHelper::merge($defaultPluginOptions, $this->pluginOptions);
     }
 
     /**
