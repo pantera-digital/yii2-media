@@ -70,22 +70,12 @@ class MediaUploadWidgetInnostudio extends Widget
     protected function initPlugin()
     {
         $onSuccess = new JsExpression('function(result, item) {
-                var data = {},
-                    nameWasChanged = false;
-                
-                try {
-                    data = JSON.parse(result);
-                } catch (e) {
-                    data.hasWarnings = true;
+                var nameWasChanged = false;
+                if(result.status){
+                    nameWasChanged = item.name != result.name;
+                    item.name = result.name;
+                    item.data.id = result.mediaId;
                 }
-                
-                // get the new file name
-                if(data.isSuccess && data.files[0]) {
-                    nameWasChanged = item.name != data.files[0].name;
-                    
-                    item.name = data.files[0].name;
-                }
-                
                 // make HTML changes
                 if(nameWasChanged)
                     item.html.find(".column-title div").animate({opacity: 0}, 400);
@@ -121,6 +111,7 @@ class MediaUploadWidgetInnostudio extends Widget
                 }
             }');
         $onRemove = new JsExpression('function(item) {
+            console.log(item);
 			$.post("' . $this->urlDelete . '", {
 				id: item.data.id,
 			});
