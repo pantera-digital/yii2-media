@@ -130,7 +130,7 @@ class Media extends ActiveRecord
      * @param int|null $modelId
      * @return string|Media|null
      */
-    public function linkMedia(UploadedFile $media, string $modelName, ?int $modelId)
+    public function linkMedia(UploadedFile $media, string $modelName, $modelId)
     {
         $this->media = $media;
         $this->model = $modelName;
