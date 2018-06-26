@@ -64,7 +64,7 @@ class MediaUploadBehavior extends Behavior
             ->andWhere(['=', 'model_id', $owner->getPrimaryKey()])
             ->andWhere(['=', 'bucket', $name]);
         if (ArrayHelper::getValue($this->buckets[$name], 'multiple', false)) {
-            $this->_buckets[$name] = $query->all();
+            $this->_buckets[$name] = $query->orderBy(['sort' => SORT_ASC])->all();
         } else {
             $this->_buckets[$name] = $query->orderBy(['id' => SORT_DESC])->one();
         }

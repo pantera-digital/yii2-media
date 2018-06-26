@@ -76,6 +76,12 @@ public function actions()
                 return \pantera\media\models\Media::findOne(Yii::$app->request->get('id'));
             }
         ],
+        'file-sort' => [
+            'class' => \pantera\media\actions\kartik\MediaSortActionKartik::className(),
+            'model' => function () {
+                    return $this->findModel(Yii::$app->request->get('id'));
+            }
+        ],
     ];
 }
 ```
@@ -92,6 +98,7 @@ public function actions()
     'bucket' => 'mediaOther',
     'urlUpload' => ['file-upload', 'id' => $model->id],
     'urlDelete' => ['file-delete'],
+    'urlDelete' => ['file-sort'],
     'options' => [
         'multiple' => true,
     ],

@@ -11,7 +11,6 @@ use pantera\media\models\Media;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
-use yii\web\JsExpression;
 use yii\web\View;
 
 /* @var $this View */
@@ -20,14 +19,8 @@ use yii\web\View;
 /* @var $media Media */
 /* @var $options array */
 /* @var $pluginOptions array */
+/* @var $pluginEvents array */
 /* @var $name string */
-
-$eventFileUploaded = <<<JS
-    function(e, data, previewId){
-        var input = $(e.target);
-        $("#" + previewId).find('.media-id').val(data.response.mediaId);
-    }
-JS;
 $defaultPluginOptions = [
     'uploadUrl' => Url::to($urlUpload),
     'maxFileSize' => 2800,
@@ -42,7 +35,5 @@ echo FileInput::widget([
     'name' => $name,
     'options' => $options,
     'pluginOptions' => ArrayHelper::merge($defaultPluginOptions, $pluginOptions),
-    'pluginEvents' => [
-        'fileuploaded' => new JsExpression($eventFileUploaded),
-    ],
+    'pluginEvents' => $pluginEvents,
 ]);

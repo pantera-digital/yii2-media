@@ -30,6 +30,7 @@ class MediaApi extends Component
         $this->_media->model = $owner::className();
         $this->_media->model_id = $owner->getPrimaryKey();
         $this->_media->bucket = $bucket;
+        $this->_media->sort = $this->_media->getNextSortPositionInBucket();
         return $this;
     }
 

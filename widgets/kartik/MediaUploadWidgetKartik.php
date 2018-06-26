@@ -15,6 +15,7 @@ use yii\base\Widget;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\web\JsExpression;
 
 class MediaUploadWidgetKartik extends Widget
 {
@@ -24,6 +25,8 @@ class MediaUploadWidgetKartik extends Widget
     public $urlUpload;
     /* @var array Url адрес для удаления */
     public $urlDelete;
+    /* @var array Url адрес для сохранения сортировки */
+    public $urlSort;
     /* @var ActiveRecord Модель к которой относится загрузчик */
     public $model;
     /* @var array Массив опций для загрузчика */
@@ -32,6 +35,8 @@ class MediaUploadWidgetKartik extends Widget
     public $pluginOptions = [];
     /* @var string Название для файлового инпута */
     public $name = 'file';
+    /* @var array Массив обработчиков событий */
+    public $pluginEvents = [];
 
     public function run()
     {
@@ -41,6 +46,7 @@ class MediaUploadWidgetKartik extends Widget
             'model' => $this->model,
             'options' => $this->options,
             'pluginOptions' => $this->pluginOptions,
+            'pluginEvents' => $this->pluginEvents,
             'name' => $this->name,
         ]);
     }
@@ -50,6 +56,7 @@ class MediaUploadWidgetKartik extends Widget
         parent::init();
         $this->options['id'] = $this->getId();
         $this->initPluginOptions();
+        $this->initPluginEvents();
         if (is_null($this->urlUpload)) {
             throw new InvalidConfigException('Настройка urlUpload обязательна');
         }
@@ -66,9 +73,35 @@ class MediaUploadWidgetKartik extends Widget
     }
 
     /**
+     * Инициализация обработчиков событий плагина
+     */
+    protected function initPluginEvents()
+    {
+        $eventFileUploaded = <<<JS
+            function(e, data, previewId){
+                var input = $(e.target);
+                $("#" + previewId).find('.media-id').val(data.response.mediaId);
+            }
+JS;
+        $pluginEvents = [
+            'fileuploaded' => new JsExpression($eventFileUploaded),
+        ];
+        if ($this->urlSort) {
+            $sortUrl = Url::to($this->urlSort);
+            $eventFileSorted = <<<JS
+                function(e, params){
+                    $.post("{$sortUrl}", params);
+                }
+JS;
+            $pluginEvents['filesorted'] = new JsExpression($eventFileSorted);
+        }
+        $this->pluginEvents = ArrayHelper::merge($this->pluginEvents, $pluginEvents);
+    }
+
+    /**
      * Инициализация всех превьюшек
      */
-    private function initPluginOptions()
+    protected function initPluginOptions()
     {
         $preview = [];
         if (is_array($this->model->{$this->bucket})) {
@@ -89,7 +122,7 @@ class MediaUploadWidgetKartik extends Widget
      * @throws InvalidConfigException
      * @throws \himiklab\thumbnail\FileNotFoundException
      */
-    private function initPluginOptionsPreview(Media $media)
+    protected function initPluginOptionsPreview(Media $media)
     {
         $preview = [];
         $this->urlDelete['id'] = $media->getPrimaryKey();
@@ -98,6 +131,7 @@ class MediaUploadWidgetKartik extends Widget
             'caption' => $media->name,
             'size' => $media->size,
             'url' => Url::to($this->urlDelete),
+            'id' => $media->id,
         ];
         $preview['initialPreviewThumbTags'][] = [
             'mediaId' => $media->id,

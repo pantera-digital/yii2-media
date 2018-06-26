@@ -25,6 +25,7 @@ use function is_array;
  * @property integer $model_id
  * @property string $created_at
  * @property string $bucket
+ * @property integer $sort
  */
 class Media extends ActiveRecord
 {
@@ -135,6 +136,7 @@ class Media extends ActiveRecord
         $this->model = $modelName;
         $this->model_id = $modelId;
         $this->name = $media->name;
+        $this->sort = $this->getNextSortPositionInBucket();
         if ($this->validate() && $this->save()) {
             return $this;
         }
@@ -142,6 +144,28 @@ class Media extends ActiveRecord
             return current($this->getFirstErrors());
         }
         return null;
+    }
+
+    /**
+     * Получить следуюшию позицию для сортировки внутри бакета
+     * @return int
+     */
+    public function getNextSortPositionInBucket()
+    {
+        $maxSort = 0;
+        if ($this->model && $this->bucket) {
+            $query = Media::find()
+                ->where(['=', 'model', $this->model])
+                ->andWhere(['=', 'bucket', $this->bucket]);
+            if ($this->isNewRecord) {
+                $query->andWhere(['IS', 'model_id', null]);
+            } else {
+                $query->andWhere(['=', 'model_id', $this->model_id]);
+            }
+            $maxSort = $query
+                ->max('sort');
+        }
+        return $maxSort + 1;
     }
 
     /**
@@ -189,6 +213,7 @@ class Media extends ActiveRecord
             'type' => ['type', 'string', 'max' => 32],
             'created_at' => ['created_at', 'safe'],
             'media' => ['media', 'file', 'skipOnEmpty' => true],
+            'sort' => ['sort', 'integer', 'integerOnly' => true],
         ];
         $rules = array_merge($rules, $this->_dynamicMediaRules);
         return $rules;
