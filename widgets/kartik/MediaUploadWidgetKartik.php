@@ -54,8 +54,6 @@ class MediaUploadWidgetKartik extends Widget
     {
         parent::init();
         $this->options['id'] = $this->getId();
-        $this->initPluginOptions();
-        $this->initPluginEvents();
         if (is_null($this->urlUpload)) {
             throw new InvalidConfigException('Настройка urlUpload обязательна');
         }
@@ -69,6 +67,8 @@ class MediaUploadWidgetKartik extends Widget
             throw new InvalidConfigException('Настройка bucket обязательна');
         }
         $this->urlUpload['bucket'] = $this->bucket;
+        $this->initPluginOptions();
+        $this->initPluginEvents();
     }
 
     /**
