@@ -157,7 +157,7 @@ class Media extends ActiveRecord
             $query = Media::find()
                 ->where(['=', 'model', $this->model])
                 ->andWhere(['=', 'bucket', $this->bucket]);
-            if ($this->isNewRecord) {
+            if (is_null($this->model_id)) {
                 $query->andWhere(['IS', 'model_id', null]);
             } else {
                 $query->andWhere(['=', 'model_id', $this->model_id]);

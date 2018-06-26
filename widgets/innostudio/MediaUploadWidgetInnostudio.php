@@ -27,6 +27,8 @@ class MediaUploadWidgetInnostudio extends Widget
     public $urlUpload;
     /* @var array Url адрес для удаления */
     public $urlDelete;
+    /* @var array Url адрес для удаления */
+    public $urlSort;
     /* @var ActiveRecord Модель к которой относится загрузчик */
     public $model;
     /* @var array Массив опция для плагина загрузчика */
@@ -111,7 +113,6 @@ class MediaUploadWidgetInnostudio extends Widget
                 }
             }');
         $onRemove = new JsExpression('function(item) {
-            console.log(item);
 			$.post("' . $this->urlDelete . '", {
 				id: item.data.id,
 			});
@@ -132,6 +133,27 @@ class MediaUploadWidgetInnostudio extends Widget
             'onRemove' => $onRemove,
             'files' => $this->initFiles(),
         ];
+        if ($this->urlSort) {
+            $sortUrl = Url::to($this->urlSort);
+            $onItemShow = new JsExpression('function(item){
+                item.html.find(\'.fileuploader-action-remove\').before(\'<a class="fileuploader-action fileuploader-action-sort" title="Sort"><i></i></a>\');
+            }');
+            $onSort = new JsExpression("function(list) {
+                var data = [];
+                list.map(function(item){
+                    data.push({
+                        id: item.data.id
+                    });
+                });
+                $.post('{$sortUrl}', {stack: data});
+            }");
+            $config['sorter'] = [
+                'onSort' => $onSort,
+            ];
+            $config['thumbnails'] = [
+                'onItemShow' => $onItemShow,
+            ];
+        }
         $config = ArrayHelper::merge($config, $this->pluginOptions);
         $this->view->registerJs('$("#' . $this->getId() . '").fileuploader(' . Json::encode($config) . ')');
     }
