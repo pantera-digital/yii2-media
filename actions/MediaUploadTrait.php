@@ -35,6 +35,7 @@ trait MediaUploadTrait
                 'status' => 'success',
                 'name' => $file->name,
                 'mediaId' => $result->id,
+                'media' => $result,
             ];
         } else {
             return [

@@ -24,9 +24,10 @@ class MediaUploadActionDosamigos extends MediaActionDosamigos
     public function run()
     {
         $file = UploadedFile::getInstanceByName($this->name);
+        $files = [];
         if ($file) {
             $res = $this->upload($file);
-            return $this->controller->asJson($res);
+            $files[] = $this->prepareFileData($res['media'], $this->deleteAction);
         } elseif (Yii::$app->request->get('id')) {
             $files = Media::find()
                 ->where(['=', 'model_id', Yii::$app->request->get('id')])
@@ -35,7 +36,7 @@ class MediaUploadActionDosamigos extends MediaActionDosamigos
             array_walk($files, function (&$file) {
                 $file = $this->prepareFileData($file, $this->deleteAction);
             });
-            return $this->controller->asJson(['files' => $files]);
         }
+        return $this->controller->asJson(['files' => $files]);
     }
 }
