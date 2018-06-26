@@ -137,7 +137,6 @@ public function actions()
     'model' => $model,
     'bucket' => 'mediaOther',
     'urlUpload' => ['file-upload-dosamigos', 'id' => $model->id],
-    'urlDelete' => ['file-delete'],
 ]) ?>
 ```
 ### Настройка загрузчика от Innostudio
