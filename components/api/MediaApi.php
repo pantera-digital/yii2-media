@@ -25,7 +25,7 @@ class MediaApi extends Component
      * @param string $bucket
      * @return MediaApi
      */
-    public function initNewMedia(ActiveRecord $owner, string $bucket): MediaApi
+    public function initNewMedia(ActiveRecord $owner, string $bucket)
     {
         $this->_media = new Media();
         $this->_media->model = $owner::className();
@@ -39,13 +39,13 @@ class MediaApi extends Component
      * @param UploadedFile|array $file
      * @return MediaApi
      */
-    public function setFile($file): MediaApi
+    public function setFile($file)
     {
         $this->_media->media = $file;
         return $this;
     }
 
-    public function create(): Media
+    public function create()
     {
         $this->_media->save();
         return $this->_media;
