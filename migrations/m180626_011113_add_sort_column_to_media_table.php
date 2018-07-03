@@ -1,5 +1,6 @@
 <?php
 
+use pantera\media\Module;
 use yii\db\Migration;
 
 /**
@@ -12,7 +13,7 @@ class m180626_011113_add_sort_column_to_media_table extends Migration
      */
     public function up()
     {
-        $this->addColumn('media', 'sort', $this->integer()->null());
+        $this->addColumn(Module::getInstance()->tableName, 'sort', $this->integer()->null());
     }
 
     /**
@@ -20,6 +21,6 @@ class m180626_011113_add_sort_column_to_media_table extends Migration
      */
     public function down()
     {
-        $this->dropColumn('media', 'sort');
+        $this->dropColumn(Module::getInstance()->tableName, 'sort');
     }
 }
