@@ -135,7 +135,6 @@ class Media extends ActiveRecord
         $this->media = $media;
         $this->model = $modelName;
         $this->model_id = $modelId;
-        $this->name = $media->name;
         $this->sort = $this->getNextSortPositionInBucket();
         if ($this->validate() && $this->save()) {
             return $this;
@@ -184,6 +183,7 @@ class Media extends ActiveRecord
                 $this->file = $fileName;
                 $this->type = $this->media->type;
                 $this->size = $this->media->size;
+                $this->name = $this->media->name;
                 $this->media->saveAs(Yii::getAlias('@mediaFileAlias') . $fileName);
             } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
                 $file = new SplFileInfo($this->media['file']);
