@@ -12,6 +12,7 @@ namespace pantera\media\components\api;
 use pantera\media\models\Media;
 use yii\base\Component;
 use yii\db\ActiveRecord;
+use yii\web\UploadedFile;
 
 class MediaApi extends Component
 {
@@ -34,7 +35,11 @@ class MediaApi extends Component
         return $this;
     }
 
-    public function setFile(array $file): MediaApi
+    /**
+     * @param UploadedFile|array $file
+     * @return MediaApi
+     */
+    public function setFile($file): MediaApi
     {
         $this->_media->media = $file;
         return $this;
