@@ -34,6 +34,17 @@ class Media extends ActiveRecord
     /* @var array Динамичиские правила валидации для модели добавляются через акшен в контролере */
     private $_dynamicMediaRules = [];
 
+    public function fields()
+    {
+        return [
+            'id',
+            'name',
+            'size',
+            'type',
+            'url',
+        ];
+    }
+
     /**
      * Установить динамические правила валидации для модели
      * @param array|null $dynamicMediaRules
