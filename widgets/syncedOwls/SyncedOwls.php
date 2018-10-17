@@ -12,6 +12,7 @@ namespace pantera\media\widgets\syncedOwls;
 use pantera\media\models\Media;
 use yii\base\Widget;
 use yii\helpers\Html;
+use yii\web\JsExpression;
 
 class SyncedOwls extends Widget
 {
@@ -38,5 +39,6 @@ class SyncedOwls extends Widget
         Html::addCssClass($this->containerOptions, 'synced-carousel');
         $this->containerOptions['id'] = $this->getId();
         SyncedOwlsAsset::register($this->view);
+        $this->view->registerJs(new JsExpression('syncedOwls("' . $this->getId() . '")'));
     }
 }
