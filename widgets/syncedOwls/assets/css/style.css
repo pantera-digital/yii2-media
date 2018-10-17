@@ -1,0 +1,55 @@
+.synced-carousel .synced-carousel-main .owl-nav button {
+    position: absolute;
+    top: 50%;
+    margin-top: -16px;
+}
+
+.synced-carousel .synced-carousel-main .owl-nav .owl-next {
+    right: 10px;
+}
+
+.synced-carousel .synced-carousel-main .owl-nav .owl-prev {
+    left: 10px;
+}
+
+.synced-carousel .synced-carousel-thumbs {
+    margin-top: 20px;
+}
+
+.synced-carousel .synced-carousel .image img {
+    border-radius: 4px;
+}
+
+.synced-carousel .owl-nav svg{
+    display: inline-block;
+}
+
+.synced-carousel .owl-nav svg path {
+    fill: #84b023;
+    transition: .185s ease all;
+}
+
+.synced-carousel .owl-carousel .owl-nav button.owl-prev, .synced-carousel .owl-carousel .owl-nav button.owl-next {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f1f3f4;
+    text-align: center;
+    transition: .185s ease all;
+    outline: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.synced-carousel .owl-carousel .owl-nav button:hover {
+    background-color: #c8e359;
+}
+
+.synced-carousel .owl-carousel .owl-nav button.owl-next svg{
+    margin-left: 3px;
+}
+
+.synced-carousel .owl-carousel .owl-nav button.owl-prev svg{
+    margin-right: 3px;
+}
