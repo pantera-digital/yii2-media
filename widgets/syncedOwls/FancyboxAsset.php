@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: singletonn
- * Date: 10/17/18
- * Time: 4:10 PM
+ * Date: 10/10/18
+ * Time: 3:22 PM
  */
 
 namespace pantera\media\widgets\syncedOwls;
@@ -12,20 +12,19 @@ namespace pantera\media\widgets\syncedOwls;
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 
-class SyncedOwlsAsset extends AssetBundle
+class FancyboxAsset extends AssetBundle
 {
-    public $sourcePath = __DIR__ . '/assets';
+    public $sourcePath = '@bower/fancybox/dist';
 
     public $css = [
-        'css/style.css',
+        'jquery.fancybox.css',
     ];
 
     public $js = [
-        'js/script.js',
+        'jquery.fancybox.js',
     ];
 
     public $depends = [
-        OwlCarouserAsset::class,
-        FancyboxAsset::class,
+        JqueryAsset::class,
     ];
 }

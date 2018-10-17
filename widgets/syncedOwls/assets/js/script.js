@@ -55,3 +55,12 @@ function syncedOwls() {
 }
 
 syncedOwls();
+
+var fancybox = $('[data-fancybox="images"]');
+fancybox.fancybox({
+    loop: false,
+    thumbs: {
+        autoStart: true,
+        axis: 'x'
+    }
+});
