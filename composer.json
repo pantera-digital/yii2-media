@@ -10,7 +10,8 @@
   "require": {
     "kartik-v/yii2-widget-fileinput": "*",
     "himiklab/yii2-easy-thumbnail-image-helper": "*",
-    "2amigos/yii2-file-upload-widget": "*"
+    "2amigos/yii2-file-upload-widget": "*",
+    "bower-asset/owl.carousel": "*"
   },
   "autoload": {
     "psr-4": {
