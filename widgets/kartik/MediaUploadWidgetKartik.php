@@ -9,7 +9,7 @@
 namespace pantera\media\widgets\kartik;
 
 
-use kartik\widgets\FileInput;
+use kartik\file\FileInput;
 use pantera\media\models\Media;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
