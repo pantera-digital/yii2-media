@@ -18,10 +18,18 @@ class SyncedOwls extends Widget
 {
     /* @var Media[] */
     public $models;
+    
     /* @var array Массив опций для контейнера */
     public $containerOptions = [];
+    
     /* @var bool Нужно ли показывать список миниатюр */
     public $showThumbs = true;
+    
+    /* @var bool Нужно ли кропать основные картинки */
+    public $cropImages = false;
+
+    /* @var bool Нужно ли кропать миниатюры */
+    public $cropThumbs = false;
 
     public function run()
     {

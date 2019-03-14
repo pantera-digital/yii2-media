@@ -18,7 +18,7 @@ use yii\web\View;
         <div class="item">
             <a data-fancybox="images" href="<?= $model->image() ?>">
                 <div class="image">
-                    <img src="<?= $model->image(420, 250, false) ?>" alt="">
+                    <img src="<?= $model->image(420, 250, $this->context->cropImages) ?>" alt="">
                 </div>
             </a>
         </div>
@@ -29,7 +29,7 @@ use yii\web\View;
         <?php foreach ($models as $model): ?>
             <div class="item">
                 <div class="image">
-                    <img src="<?= $model->image(90, 71, false) ?>" alt="">
+                    <img src="<?= $model->image(90, 71, $this->context->cropThumbs) ?>" alt="">
                 </div>
             </div>
         <?php endforeach; ?>
