@@ -1,9 +1,8 @@
 # yii2-media
-Module for media resources (images, videos, files) management for any entities
+Модуль для управления медиа ресурсами (картинок, видео, файлов и тд..) 
 
-
-## Install
-Preferred way via composer:
+## Установка
+Предпочтительно через композер:
 ```
 $ composer require pantera-digital/yii2-media "dev-master"
 ```
@@ -18,7 +17,7 @@ $ composer require pantera-digital/yii2-media "dev-master"
     ],
 ],
 ```
-#### Migration
+#### Миграции
 Нужно добавить в конфиг консоли
 ```
 'controllerMap' => [
