@@ -8,6 +8,7 @@
 
 namespace pantera\media\behaviors;
 
+use Closure;
 use pantera\media\models\Media;
 use Yii;
 use yii\base\Behavior;
@@ -24,6 +25,8 @@ class MediaUploadBehavior extends Behavior
     public $owner;
     /* @var array Массив груп для файлов */
     public $buckets = [];
+    /* @var Closure|null */
+    public $getPrimaryKey;
     /* @var array Массив бакетов и их наборов медиа */
     private $_buckets = [];
 
@@ -35,6 +38,14 @@ class MediaUploadBehavior extends Behavior
         }
     }
 
+    public function getPrimaryKey(): ?string
+    {
+        if ($this->getPrimaryKey) {
+            return call_user_func($this->getPrimaryKey);
+        }
+        return $this->owner->getPrimaryKey();
+    }
+
     /**
      * Проверяем запрошенное свойство в бакетах
      * @param $name
@@ -43,9 +54,7 @@ class MediaUploadBehavior extends Behavior
      */
     public function canGetProperty($name, $checkVars = true)
     {
-        if (array_key_exists($name, $this->buckets)) {
-            return true;
-        }
+        return array_key_exists($name, $this->buckets);
     }
 
     /**
@@ -58,10 +67,9 @@ class MediaUploadBehavior extends Behavior
         if (array_key_exists($name, $this->_buckets)) {
             return $this->_buckets[$name];
         }
-        $owner = $this->owner;
         $query = Media::find()
-            ->where(['=', 'model', $owner::className()])
-            ->andWhere(['=', 'model_id', $owner->getPrimaryKey()])
+            ->where(['=', 'model', get_class($this->owner)])
+            ->andWhere(['=', 'model_id', $this->getPrimaryKey()])
             ->andWhere(['=', 'bucket', $name]);
         if (ArrayHelper::getValue($this->buckets[$name], 'multiple', false)) {
             $this->_buckets[$name] = $query->orderBy(['sort' => SORT_ASC])->all();
@@ -90,8 +98,8 @@ class MediaUploadBehavior extends Behavior
     {
         Media::deleteAll([
             'AND',
-            ['=', 'model', $this->owner::className()],
-            ['=', 'model_id', $this->owner->getPrimaryKey()],
+            ['=', 'model', get_class($this->owner)],
+            ['=', 'model_id', $this->getPrimaryKey()],
         ]);
     }
 
@@ -102,10 +110,10 @@ class MediaUploadBehavior extends Behavior
     {
         if (Yii::$app instanceof Application) {
             Media::updateAll([
-                'model_id' => $this->owner->getPrimaryKey(),
+                'model_id' => $this->getPrimaryKey(),
             ], [
                 'AND',
-                ['=', 'model', $this->owner::className()],
+                ['=', 'model', get_class($this->owner)],
                 ['IN', 'id', Yii::$app->request->post($this->name, [])],
             ]);
         }
