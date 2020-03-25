@@ -3,11 +3,15 @@
 namespace pantera\media\models;
 
 use himiklab\thumbnail\EasyThumbnailImage;
+use himiklab\thumbnail\FileNotFoundException;
 use pantera\media\Module;
 use SplFileInfo;
+use SplFileObject;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\httpclient\Exception;
 use yii\web\UploadedFile;
 use function array_key_exists;
 use function array_merge;
@@ -22,7 +26,7 @@ use function is_array;
  * @property string $type
  * @property integer $size
  * @property string $model
- * @property integer $model_id
+ * @property string $model_id
  * @property string $created_at
  * @property string $bucket
  * @property integer $sort
@@ -78,8 +82,9 @@ class Media extends ActiveRecord
      * @param null $height Высота изображения
      * @param boolean $inset Тип трансформации изображения
      * @return string
-     * @throws \himiklab\thumbnail\FileNotFoundException
-     * @throws \yii\base\InvalidConfigException
+     * @throws FileNotFoundException
+     * @throws InvalidConfigException
+     * @throws Exception
      */
     public function image($width = null, $height = null, $inset = true)
     {
@@ -190,32 +195,26 @@ class Media extends ActiveRecord
                 if (!$this->isNewRecord) {
                     $this->deleteFile();
                 }
-
-                if($this->media->extension == 'webp') {
-                    $fileName = uniqid('', true) . '.jpeg';
-
+                if ($this->media->extension == 'webp') {
+                    $fileName = uniqid('', true).'.jpeg';
                     $rawImg = imagecreatefromwebp($this->media->tempName);
-                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
+                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias').$fileName);
                     imagedestroy($rawImg);
-
-                    $jpeg = new \SplFileObject($fileName);
+                    $jpeg = new SplFileObject($fileName);
                     $this->type = $jpeg->getType();
                     $this->size = $jpeg->getSize();
                     $this->name = $this->media->name;
                 } else {
-                    $fileName = uniqid('', true) . '.' . $this->media->extension;
+                    $fileName = uniqid('', true).'.'.$this->media->extension;
                     $this->type = $this->media->type;
                     $this->size = $this->media->size;
                     $this->name = $this->media->name;
-                    $this->media->saveAs(Yii::getAlias('@mediaFileAlias') . $fileName);
+                    $this->media->saveAs(Yii::getAlias('@mediaFileAlias').$fileName);
                 }
-
                 $this->file = $fileName;
-
             } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
                 $file = new SplFileInfo($this->media['file']);
-
-                if($file->getExtension() == 'webp') {
+                if ($file->getExtension() == 'webp') {
                     $rawImg = imagecreatefromwebp($this->media['file']);
                     $fileName = uniqid('', true) . '.jpeg';
                     imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
@@ -232,7 +231,6 @@ class Media extends ActiveRecord
                     $this->size = $file->getSize();
                     $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
                 }
-
                 copy($this->media['file'], $this->getPath());
             }
         }
@@ -245,7 +243,7 @@ class Media extends ActiveRecord
     public function rules()
     {
         $rules = [
-            'model_id' => ['model_id', 'integer'],
+            'model_id' => ['model_id', 'string', 'max' => 255],
             'size' => ['size', 'integer'],
             'model' => ['model', 'string', 'max' => 255],
             'name' => ['name', 'string', 'max' => 255],
