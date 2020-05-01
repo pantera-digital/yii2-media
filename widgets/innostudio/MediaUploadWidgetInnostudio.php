@@ -8,7 +8,6 @@
 
 namespace pantera\media\widgets\innostudio;
 
-
 use pantera\media\models\Media;
 use yii\base\InvalidConfigException;
 use yii\base\Widget;
@@ -185,7 +184,7 @@ class MediaUploadWidgetInnostudio extends Widget
         return [
             'id' => $media->id,
             'name' => $media->name,
-            'size' => 1024,
+            'size' => $media->size,
             'file' => $media->getUrl(),
             'type' => $media->type,
             'data' => [

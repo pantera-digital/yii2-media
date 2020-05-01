@@ -8,6 +8,7 @@
     }
   ],
   "require": {
+    "ext-imagick": "*",
     "kartik-v/yii2-widget-fileinput": "*",
     "himiklab/yii2-easy-thumbnail-image-helper": "*",
     "2amigos/yii2-file-upload-widget": "*",

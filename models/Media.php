@@ -4,20 +4,19 @@ namespace pantera\media\models;
 
 use himiklab\thumbnail\EasyThumbnailImage;
 use himiklab\thumbnail\FileNotFoundException;
+use Intervention\Image\Image;
+use Intervention\Image\ImageManagerStatic;
 use pantera\media\Module;
-use SplFileInfo;
-use SplFileObject;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
+use yii\helpers\StringHelper;
 use yii\httpclient\Exception;
 use yii\web\UploadedFile;
-use function array_key_exists;
 use function array_merge;
 use function copy;
 use function file_exists;
-use function is_array;
 
 /**
  * @property integer $id
@@ -36,7 +35,7 @@ class Media extends ActiveRecord
     /* @var UploadedFile|array|null */
     public $media;
     /* @var array Динамичиские правила валидации для модели добавляются через акшен в контролере */
-    private $_dynamicMediaRules = [];
+    private $dynamicMediaRules = [];
 
     public function fields()
     {
@@ -55,7 +54,7 @@ class Media extends ActiveRecord
      */
     public function setDynamicFileRules($dynamicMediaRules)
     {
-        $this->_dynamicMediaRules = $dynamicMediaRules;
+        $this->dynamicMediaRules = $dynamicMediaRules;
     }
 
     /**
@@ -162,6 +161,99 @@ class Media extends ActiveRecord
     }
 
     /**
+     * @param UploadedFile $media
+     * @param ActiveRecord $model
+     * @param int|string $modelId
+     * @return string|Media|null
+     */
+    public function linkMediaNew(UploadedFile $media, ActiveRecord $model, $modelId)
+    {
+        $this->model = get_class($model);
+        $this->model_id = $modelId;
+        $this->sort = $this->getNextSortPositionInBucket();
+        $this->saveMedia($media, $model);
+        if (!$this->validate() || !$this->save()) {
+            return current($this->getFirstErrors());
+        }
+        return $this;
+    }
+
+    private function saveMedia(UploadedFile $media, ActiveRecord $model): bool
+    {
+//        var_dump($media);
+//        /* @var $mediaUploadBehavior MediaUploadBehavior */
+//        $mediaUploadBehavior = $model->getBehavior('media');
+//        if ($mediaUploadBehavior) {
+//            var_dump($mediaUploadBehavior->buckets);
+//        }
+//        var_dump($model);
+//        die();
+        $mediaData = new MediaData([
+            'extension' => $media->extension,
+            'type' => $media->type,
+            'size' => $media->size,
+            'name' => $media->name,
+            'path' => $media->tempName,
+        ]);
+        return $this->saveFile($mediaData);
+    }
+
+    private function saveFile(MediaData $mediaData): bool
+    {
+        if (!$mediaData->validate()) {
+            return false;
+        }
+        $this->file = uniqid('', true).'.'.$mediaData->extension;
+        $this->type = $mediaData->type;
+        $this->size = $mediaData->size;
+        $this->name = $mediaData->name;
+        return copy($mediaData->path, $this->getPath());
+    }
+
+    public function resize(int $width, int $height, int $quality = 100): string
+    {
+        ImageManagerStatic::configure(array('driver' => 'imagick'));
+        $img = ImageManagerStatic::make($this->getPath());
+        $result = $img->resize($width, $height, function ($constraint) {
+            $constraint->upsize();
+            $constraint->aspectRatio();
+        });
+        return $this->saveThumb($result, $quality);
+    }
+
+    private function saveThumb(Image $image, int $quality = 100): string
+    {
+        $path = $this->getThumbPath($image, $quality);
+        if (!file_exists($path)) {
+            $image->save($path, $quality);
+        }
+        return $this->getThumbUrl($image, $quality);
+    }
+
+    private function getThumbPath(Image $image, int $quality): string
+    {
+        $path = $this->getThumbBasePath($image, $quality);
+        $path = Yii::$app->assetManager->basePath . "/thumbs/{$path}";
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        return "{$path}/{$this->name}";
+    }
+
+    private function getThumbUrl(Image $image, int $quality): string
+    {
+        $path = $this->getThumbBasePath($image, $quality);
+        return Yii::$app->assetManager->baseUrl . "/thumbs/{$path}/{$this->name}";
+    }
+
+    private function getThumbBasePath(Image $image, int $quality): string
+    {
+        $path = strtolower(str_replace('\\', '-', $this->model));
+        $path .= "/{$this->model_id}/{$image->width()}-{$image->height()}-{$quality}";
+        return str_replace(' ', '', $path);
+    }
+
+    /**
      * Получить следуюшию позицию для сортировки внутри бакета
      * @return int
      */
@@ -183,59 +275,67 @@ class Media extends ActiveRecord
         return $maxSort + 1;
     }
 
-    /**
-     * Перед сохранением модели сохраняем файл
-     * @param bool $insert
-     * @return bool
-     */
-    public function beforeSave($insert)
-    {
-        if ($this->media) {
-            if ($this->media instanceof UploadedFile) {
-                if (!$this->isNewRecord) {
-                    $this->deleteFile();
-                }
-                if ($this->media->extension == 'webp') {
-                    $fileName = uniqid('', true).'.jpeg';
-                    $rawImg = imagecreatefromwebp($this->media->tempName);
-                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias').$fileName);
-                    imagedestroy($rawImg);
-                    $jpeg = new SplFileObject($fileName);
-                    $this->type = $jpeg->getType();
-                    $this->size = $jpeg->getSize();
-                    $this->name = $this->media->name;
-                } else {
-                    $fileName = uniqid('', true).'.'.$this->media->extension;
-                    $this->type = $this->media->type;
-                    $this->size = $this->media->size;
-                    $this->name = $this->media->name;
-                    $this->media->saveAs(Yii::getAlias('@mediaFileAlias').$fileName);
-                }
-                $this->file = $fileName;
-            } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
-                $file = new SplFileInfo($this->media['file']);
-                if ($file->getExtension() == 'webp') {
-                    $rawImg = imagecreatefromwebp($this->media['file']);
-                    $fileName = uniqid('', true) . '.jpeg';
-                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
-                    imagedestroy($rawImg);
-                    $jpeg = $file = new SplFileInfo(Yii::getAlias('@mediaFileAlias') . $fileName);
-                    $this->file = $fileName;
-                    $this->type = $jpeg->getType();
-                    $this->size = $jpeg->getSize();
-                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
-                } else {
-                    $fileName = uniqid('', true) . '.' . $file->getExtension();
-                    $this->file = $fileName;
-                    $this->type = $file->getType();
-                    $this->size = $file->getSize();
-                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
-                }
-                copy($this->media['file'], $this->getPath());
-            }
-        }
-        return parent::beforeSave($insert);
-    }
+//    /**
+//     * Перед сохранением модели сохраняем файл
+//     * @param bool $insert
+//     * @return bool
+//     */
+//    public function beforeSave($insert)
+//    {
+//        if ($this->media) {
+//            if ($this->media instanceof UploadedFile) {
+//                if (!$this->isNewRecord) {
+//                    $this->deleteFile();
+//                }
+//                if ($this->media->extension == 'webp') {
+//                    $fileName = uniqid('', true).'.jpeg';
+//                    $rawImg = imagecreatefromwebp($this->media->tempName);
+//                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias').$fileName);
+//                    imagedestroy($rawImg);
+//                    $jpeg = new SplFileObject($fileName);
+//                    $this->type = $jpeg->getType();
+//                    $this->size = $jpeg->getSize();
+//                    $this->name = $this->media->name;
+//                } else {
+//                    Image::configure(array('driver' => 'imagick'));
+//                    $img = Image::make($this->media->tempName);
+//                    $result = $img->resize(800, 800, function ($constraint) {
+//                        $constraint->aspectRatio();
+//                    });
+//                    $result->save('awg80.'.$this->media->extension, 90);
+//                    var_dump($this->media);
+//                    die();
+//                    $fileName = uniqid('', true).'.'.$this->media->extension;
+//                    $this->type = $this->media->type;
+//                    $this->size = $this->media->size;
+//                    $this->name = $this->media->name;
+//                    $this->media->saveAs(Yii::getAlias('@mediaFileAlias').$fileName);
+//                }
+//                $this->file = $fileName;
+//            } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
+//                $file = new SplFileInfo($this->media['file']);
+//                if ($file->getExtension() == 'webp') {
+//                    $rawImg = imagecreatefromwebp($this->media['file']);
+//                    $fileName = uniqid('', true) . '.jpeg';
+//                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
+//                    imagedestroy($rawImg);
+//                    $jpeg = $file = new SplFileInfo(Yii::getAlias('@mediaFileAlias') . $fileName);
+//                    $this->file = $fileName;
+//                    $this->type = $jpeg->getType();
+//                    $this->size = $jpeg->getSize();
+//                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
+//                } else {
+//                    $fileName = uniqid('', true) . '.' . $file->getExtension();
+//                    $this->file = $fileName;
+//                    $this->type = $file->getType();
+//                    $this->size = $file->getSize();
+//                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
+//                }
+//                copy($this->media['file'], $this->getPath());
+//            }
+//        }
+//        return parent::beforeSave($insert);
+//    }
 
     /**
      * @inheritdoc
@@ -254,7 +354,7 @@ class Media extends ActiveRecord
             'media' => ['media', 'file', 'skipOnEmpty' => true],
             'sort' => ['sort', 'integer', 'integerOnly' => true],
         ];
-        $rules = array_merge($rules, $this->_dynamicMediaRules);
+        $rules = array_merge($rules, $this->dynamicMediaRules);
         return $rules;
     }
 

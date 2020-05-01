@@ -29,7 +29,7 @@ trait MediaUploadTrait
         $media = new Media();
         $media->bucket = Yii::$app->request->get('bucket');
         $media->setDynamicFileRules($this->rules);
-        $result = $media->linkMedia($file, get_class($this->model), $this->getPrimaryKey());
+        $result = $media->linkMediaNew($file, $this->model, $this->getPrimaryKey());
         if (is_object($result)) {
             return [
                 'status' => 'success',
