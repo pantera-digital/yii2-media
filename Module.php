@@ -13,6 +13,7 @@ class Module extends \yii\base\Module
     public $tableName = '{{%media}}';
     public $mediaUrlAlias = '@web/uploads/media/';
     public $mediaFileAlias = '@webroot/uploads/media/';
+    public $isAvailableWebp = false;
 
     public function init()
     {

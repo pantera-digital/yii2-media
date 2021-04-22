@@ -186,19 +186,22 @@ class Media extends ActiveRecord
     public function beforeSave($insert)
     {
         if ($this->media) {
+            $module = Module::getInstance();
+
             if ($this->media instanceof UploadedFile) {
                 if (!$this->isNewRecord) {
                     $this->deleteFile();
                 }
 
-                if($this->media->extension == 'webp') {
+                if(!$module->isAvailableWebp && $this->media->extension == 'webp') {
                     $fileName = uniqid('', true) . '.jpeg';
 
                     $rawImg = imagecreatefromwebp($this->media->tempName);
-                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
+                    $path = Yii::getAlias('@mediaFileAlias') . $fileName;
+                    imagejpeg($rawImg, $path);
                     imagedestroy($rawImg);
 
-                    $jpeg = new \SplFileObject($fileName);
+                    $jpeg = new SplFileInfo($path);
                     $this->type = $jpeg->getType();
                     $this->size = $jpeg->getSize();
                     $this->name = $this->media->name;
@@ -215,23 +218,24 @@ class Media extends ActiveRecord
             } elseif (is_array($this->media) && array_key_exists('file', $this->media)) {
                 $file = new SplFileInfo($this->media['file']);
 
-                if($file->getExtension() == 'webp') {
+                if(!$module->isAvailableWebp && $file->getExtension() == 'webp') {
                     $rawImg = imagecreatefromwebp($this->media['file']);
                     $fileName = uniqid('', true) . '.jpeg';
-                    imagejpeg($rawImg, Yii::getAlias('@mediaFileAlias') . $fileName);
+                    $path = Yii::getAlias('@mediaFileAlias') . $fileName;
+                    imagejpeg($rawImg, $path);
                     imagedestroy($rawImg);
-                    $jpeg = $file = new SplFileInfo(Yii::getAlias('@mediaFileAlias') . $fileName);
+
+                    $jpeg = new SplFileInfo($path);
                     $this->file = $fileName;
                     $this->type = $jpeg->getType();
                     $this->size = $jpeg->getSize();
-                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
                 } else {
                     $fileName = uniqid('', true) . '.' . $file->getExtension();
                     $this->file = $fileName;
                     $this->type = $file->getType();
                     $this->size = $file->getSize();
-                    $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
                 }
+                $this->name = ArrayHelper::getValue($this->media, 'name', $fileName);
 
                 copy($this->media['file'], $this->getPath());
             }
