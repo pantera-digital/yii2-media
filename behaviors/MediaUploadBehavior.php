@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: singletonn
- * Date: 10/25/17
- * Time: 5:30 PM
- */
 
 namespace pantera\media\behaviors;
 
@@ -20,6 +14,8 @@ class MediaUploadBehavior extends Behavior
 {
     /* @var string Название элемента в массиве который содержит идентификатор загруженой media */
     public $name = 'media';
+    /* @var string "Ключ" модели, для соотнесения медиа с объектом-владельцем, иначе используется `$owner::className()` */
+    public $modelKey = null;
     /* @var ActiveRecord */
     public $owner;
     /* @var array Массив груп для файлов */
@@ -60,7 +56,7 @@ class MediaUploadBehavior extends Behavior
         }
         $owner = $this->owner;
         $query = Media::find()
-            ->where(['=', 'model', $owner::className()])
+            ->where(['=', 'model', $this->modelKey ?: $owner::className()])
             ->andWhere(['=', 'model_id', $owner->getPrimaryKey()])
             ->andWhere(['=', 'bucket', $name]);
         if (ArrayHelper::getValue($this->buckets[$name], 'multiple', false)) {
@@ -90,7 +86,7 @@ class MediaUploadBehavior extends Behavior
     {
         Media::deleteAll([
             'AND',
-            ['=', 'model', $this->owner::className()],
+            ['=', 'model', $this->modelKey ?: $this->owner::className()],
             ['=', 'model_id', $this->owner->getPrimaryKey()],
         ]);
     }
@@ -105,7 +101,7 @@ class MediaUploadBehavior extends Behavior
                 'model_id' => $this->owner->getPrimaryKey(),
             ], [
                 'AND',
-                ['=', 'model', $this->owner::className()],
+                ['=', 'model', $this->modelKey ?: $this->owner::className()],
                 ['IN', 'id', Yii::$app->request->post($this->name, [])],
             ]);
         }
